@@ -11,3 +11,6 @@ It is composed of:
   6. Corresponding Post-Hoc tests 
   7. Visualization of the data (graph) with significance bars and stars
   8. Exportation of the results
+
+STUDY-CASE: 
+22 subjects played a football simulated game. Before the match ("PreMatch"), 24h, 48h and 72h after, they performed different type of force measurements (IMVC, NAV and DB100). After the match, subjects were divided in 2 groups experiencing 25-min sessions of either cold water immersion (CWI, n = 11) or hot water immersion (HWI, n = 11). We want to know if the immersion temperature have an impact on the force recovery. To do so, we will perform a Multiple Mean Comparison analysis. 
