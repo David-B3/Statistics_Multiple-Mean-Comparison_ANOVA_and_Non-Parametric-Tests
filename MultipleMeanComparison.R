@@ -1,10 +1,10 @@
-# 2 WAY ANOVA WITH MIXED FACTOR
+# STEP-by-STEP Multiple Mean Comparison analysis
 # 05/06/2021
 # David Bandiera, ORCID 0000-0003-2618-1922. 
 
 # AUTHOR'S COMMENTS: 
-# In this code you will find a step by step method to compute an ANOVA in R. In this case it is an ANOVA Mixed factor which means that 1 factor is a within 
-# subject factor (the time) and the other one is a between-subject factor (the group).
+# In this code you will find a step by step method to compute an Multiple Mean Comparison analysis in R. In this case we have 2 factors, the time and the group. 
+# The time is a within subject factor (4 conditions: PreMatch, 24h, 48h and 72h) and the group is a between-subject factor (2 conditions: HWI or CWI).
 # First we will load the packages required and open the data file with your results arranged as suggested in the file "Example-Mixed2WayANOVA-DavidBandiera.xlsx". 
 # Then, we will perform descriptive statistics, plot data graph to observe data, check that basal data are not different between group (shouldn't be different 
 # because no treatment has been applied yet, if different, data has to be expressed in % of the basal value), check for normality, homogeneity, perform 
@@ -16,7 +16,7 @@
 # 22 subjects played a football simulated game. Before the match ("PreMatch"), 24h, 48h and 72h after, they performed different type of force 
 # measurements (IMVC, NAV and DB100). After the match, subjects were divided in 2 groups experiencing 25-min sessions of either cold water immersion (CWI, n = 11) or 
 # hot water immersion (HWI, n = 11) during this recovery period. We want to know if the immersion temperature have an impact on the force recovery. To do so, we will 
-# perform an ANOVA. 
+# perform an Multiple Mean Comparison analysis. 
 
 # SOURCES :
 #https://www.datanovia.com/en/lessons/mixed-anova-in-r/
