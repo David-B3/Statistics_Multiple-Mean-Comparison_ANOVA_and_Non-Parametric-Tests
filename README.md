@@ -1,4 +1,4 @@
-# Perform a STEP by STEP multiple mean comparison analysis on R.
+# Perform a STEP by STEP multiple mean comparison analysis on R
 This code has been developed to realize the complete process of a multiple mean comparison (ANOVA and non-parametric tests) on R.
 
 It is composed of: 
