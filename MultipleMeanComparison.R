@@ -1,26 +1,25 @@
 # STEP-by-STEP Multiple Mean Comparison analysis
 # 05/06/2021
-# David Bandiera, ORCID 0000-0003-2618-1922. 
+# Author: David Bandiera, contact at bandiera.david@gmail.com
 
 # AUTHOR'S COMMENTS: 
-# In this code you will find a step by step method to compute an Multiple Mean Comparison analysis in R. In this case we have 2 factors, the time and the group. 
+# In this code you will find a step by step method to compute a Multiple Mean Comparison analysis in R. In this case we have 2 factors, the time and the group. 
 # The time is a within subject factor (4 conditions: PreMatch, 24h, 48h and 72h) and the group is a between-subject factor (2 conditions: HWI or CWI).
-# First we will load the packages required and open the data file with your results arranged as suggested in the file "Example-Mixed2WayANOVA-DavidBandiera.xlsx". 
+# First we will load the packages required and open the data file "Example-MultipleMeanComparison.csv". 
 # Then, we will perform descriptive statistics, plot data graph to observe data, check that basal data are not different between group (shouldn't be different 
-# because no treatment has been applied yet, if different, data has to be expressed in % of the basal value), check for normality, homogeneity, perform 
-# non-parametric and parametric-test and finally save the results. 
+# because no treatment has been applied yet, if different, data has to be expressed in % of the basal value), check for normality and homogeneity, perform 
+# non-parametric or parametric-test and finally save the results. 
 # Thank you and have fun !
 # Please feel free to reach me if you have any question. 
 
 # STUDY-CASE: 
-# 22 subjects played a football simulated game. Before the match ("PreMatch"), 24h, 48h and 72h after, they performed different type of force 
-# measurements (IMVC, NAV and DB100). After the match, subjects were divided in 2 groups experiencing 25-min sessions of either cold water immersion (CWI, n = 11) or 
+# 22 subjects played a football simulated game. Before the match ("PreMatch"), 24h, 48h and 72h after, they performed isometric maximal voluntary force measurment (IMVC). 
+# After the match, subjects were divided in 2 groups experiencing 25-min sessions of either cold water immersion (CWI, n = 11) or 
 # hot water immersion (HWI, n = 11). We want to know if the immersion temperature have an impact on the force recovery. To do so, we will 
 # perform an Multiple Mean Comparison analysis. 
 
 # SOURCES :
 #https://www.datanovia.com/en/lessons/mixed-anova-in-r/
-#https://www.datanovia.com/en/fr/lessons/test-t-dans-r/#tests-t-pour-echantillon-unique
 
 # PACKAGE COMPILATION
 library("mise")
@@ -33,7 +32,8 @@ library("data.table")
 library("PMCMRplus")
 
 # OPEN THE DATA FILE
-ds <- read_excel("/Users/davidbandiera/Google_Drive/Thermorecovery/8.Rendu/Article/Code R/Example-Mixed2WayANOVA-DavidBandiera.xlsx") #write the file path where your dataset is stored. 
+ds <- read.csv2("~/Example-MultipleMeanComparison.CSV") #for CSV. Write the path where your dataset is stored.
+#ds <- read_excel("~/yourdatafile.XLSX") #For XLSX. 
 
 # ADD 2 COLUMNS TO DETERMINE THE TIME AND THE TYPE OF BATH
 ds$Bath<-ifelse(grepl("_A_", ds$Code), "HWI", "CWI")
@@ -46,7 +46,7 @@ ylab1 <- "IMVC"
 ds$id <- sub("_.*", "", ds$Code) # Extract text before "_" in ds$Code. Extract the subject ID (ex : 'S1'). Needed for Mixed model ANOVA (line 161). 
 
 # SUPRESS EXTREME OUTLIERS
-#If extreme outliers (as determined in line 61), suppress subject(s) and restart from line 37.
+#If extreme outliers (as determined in line 79), suppress subject(s) and restart from line 53.
 #ds <- ds[!(ds$id == "S1"),] #code to suppress a subject, here an example with Subject 1 = S1. 
 
 # DETERMINE ds$id AS FACTOR
@@ -63,11 +63,11 @@ plot1 <- ggline(
   x = "Time", 
   y = "param",
   #ylim = c(0,1100),
-  ylab = "IMVC (N)",
+  ylab = ylab1,
   xlab = "",
   color = "Bath", 
-  add = c("mean_sd"),
-  add.params = list(size = 3, alpha = 0.3),
+  add = c("mean_sd", "jitter"), #remove "jitter" if you don'y want to see individual measures
+  add.params = list(size = 2, alpha = 0.2),
   order = c("PreMatch", "24h", "48h", "72h"),
   palette = c("#DA483B", "#4486F4"),
   error.plot = "errorbar",
@@ -82,8 +82,8 @@ Outliers <- ds %>%
 view(Outliers)
 
 # DISTRIBUTION OF THE DATA AT PREMATCH (BASAL VALUES)
-#Is there a significant difference between CWI and HWI at PreMatch ? Do a mean independant comparison between CWI and HWI. 
-#If yes : put values in % of PreMatch Values -> See after, line 93. 
+#Is there a significant difference between CWI and HWI at PreMatch? Do a mean independant comparison between CWI and HWI. 
+#If yes : put values in % of PreMatch Values -> See after, line 114. 
 #If no, we can continue with raw data.
 ParamPre <- c(ds$param[ds$Time == "PreMatch"])
 IDPre <- c(ds$id[ds$Time == "PreMatch"])
@@ -151,25 +151,26 @@ homogeneity <- ds %>%
 homogeneity
 
 # NON-PARAMETRIC TEST 
+#If data are not normally distributed. 
 ds$Time <- factor(ds$Time)
 ds$id <- factor(ds$id)
-Oneway.Time <- friedman_test(param~Time | id, data = ds) #Within group factor : Friedman test. 
+Oneway.Time <- friedman_test(param~Time | id, data = ds) #Within group factor: Friedman test. 
 Oneway.Time
 ConoverTime <- frdAllPairsConoverTest(ds$param, ds$Time, ds$id, p.adjust.method = "bonferroni") #Post-Hoc Conover Test.
 ConoverTime
 
-Oneway.Bath <- kruskal.test(param~Bath, data = ds) #Between group factor : Kruskal-Wallis test. 
+Oneway.Bath <- kruskal.test(param~Bath, data = ds) #Between group factor: Kruskal-Wallis test. 
 Oneway.Bath
 pwcBath <- ds %>% #Post-hoc Wilcoxon test. 
   rstatix::wilcox_test(param ~ Bath, 
                        detailed = TRUE) %>%
   adjust_pvalue(method = "bonferroni") %>%
   add_significance()
-#add_significance(symbols = c("####", "###", "##", "#", "ns")) 
 pwcBath
 #No interaction time*group for non-parametric test. 
 
 # PARAMETRIC TEST : TWO WAY MIXED ANOVA TEST
+#If data are distributed normally. 
 #Mauchly's test for sphericity assumption is automatically performed and Greenhouse correction is suggested if needed.
 ds2 <- data.frame(id = ds$id, param = ds$param, Bath = ds$Bath, Time = ds$Time) # New Dataset to avoid the R error : "Error in `contrasts..." 
 res.aov.brut <- anova_test(
@@ -233,8 +234,6 @@ pwcInterTime <- ds2 %>%
   select(-df, -statistic, -p) # Remove details
 #Visualize the data. Time effect. 
 pwcInterTime <- pwcInterTime %>% add_xy_position(x = "Time")
-pwcInterTime$y.position[pwcInterTime$group2 == "24h"] <- 1000 #edit the height of the significant bars. 
-pwcInterTime$y.position[pwcInterTime$group2 == "72h"] <- 1100
 plot1 + # display significant differences on the graph
   stat_pvalue_manual(pwcInterTime, tip.length = 0, hide.ns = TRUE, color = "Bath") #+
   #labs(
@@ -267,7 +266,7 @@ plotbarBath <- ggbarplot(
 ) + theme(legend.position = "none") 
 plotbarBath
 pwcBath <- pwcBath %>% add_xy_position(x = "Time")
-pwcBath$y.position <- 1000 # height of the significant bars
+#pwcBath$y.position <- 1300 # height of the significant bars
 plotbarBath + # add significant bars
   stat_pvalue_manual(pwcBath, tip.length = 0, hide.ns = FALSE)# +
   #labs(
@@ -284,6 +283,8 @@ pwcTime <- ds2 %>%
 view(pwcTime)
 #Plot time main effect 
 pwcTime <- pwcTime %>% add_xy_position(x = "Time")
+#pwcTime$y.position[1] <- 1190 # height of the significant bars
+#pwcTime$y.position[5] <- 1220 # height of the significant bars
 plot1 + 
  stat_pvalue_manual(pwcTime, tip.length = 0, hide.ns = TRUE) # +
   # labs(
@@ -293,7 +294,7 @@ plot1 +
 
 # SAVE RESULTS AND GRAPH
 #Descriptive data
-setwd("~/1.Descriptives/") #write the file path where you want to save data
+setwd("~/Descriptives/") #write the path where you want to save data
 resume_name <- paste("Descriptives-", ylab1, ".csv", sep = "")
 write_csv(resume, resume_name, col_names = TRUE)
 #Statistic Test
