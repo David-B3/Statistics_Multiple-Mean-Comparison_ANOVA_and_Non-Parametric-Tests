@@ -1,6 +1,6 @@
 # STEP-by-STEP Multiple Mean Comparison analysis
 # 05/06/2021
-# Author: David Bandiera, contact at bandiera.david@gmail.com
+# Author: David Bandiera
 
 # AUTHOR'S COMMENTS: 
 # In this code you will find a step by step method to compute a Multiple Mean Comparison analysis in R. In this case we have 2 factors, the time and the group. 
